@@ -8,3 +8,6 @@ This is ROS1 python driver for bluerobotics pressure sensor, it use [ms5837-pyth
 ### c++ driver references:
 - [ros2 driver with MRAA lib](https://github.com/clydemcqueen/BlueRobotics_MS5837_Library)
 - [mraa lib](https://github.com/eclipse/mraa)
+
+### Notes:
+- we are publish the data in [mvp_msgs](https://github.com/uri-ocean-robotics/mvp_msgs)
