@@ -1,0 +1,26 @@
+sensor:
+    # brief: MODEL_02BA = 0, MODEL_30BA = 1
+    model: 1
+
+    # brief: Default I2C bus is 1
+    bus: 1
+
+    # brief: Fluid Density (kg/m^3); fresh: 997.0474; seawater: 1023.6
+    fluid_density: 997.0474
+
+ros:
+    # brief: pressure topic name
+    topic_pressure: /pressure
+
+    # brief: temperature topic name
+    topic_temperature: /temperature
+
+    # brief: depth topic name
+    topic_depth: /depth
+
+    # brief: frame_id
+    frame_id: alpha/pressure
+
+system:
+    # brief: sensor publish rate
+    rate: 1

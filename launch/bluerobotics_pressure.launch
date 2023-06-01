@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="config" default="$(find bluerobotics_pressure)/config/bar30.yaml"/>
+
+  <node name="bluerobotics_pressure_node" pkg="bluerobotics_pressure" type="driver.py" output="screen">
+      <rosparam command="load" file="$(arg config)"/>
+
+      <!-- <remap from="/a" to="/b"/> -->
+  </node>
+
+</launch>
