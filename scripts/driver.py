@@ -48,10 +48,7 @@ class BlueRoboticsPressure():
 
     def get_params(self):
         # ros configureation
-        self.topic_pressure = rospy.get_param('~ros/topic_pressure', '/bluerobotics_pressure/pressure')
-        self.topic_temperature = rospy.get_param('~ros/topic_temperature', '/bluerobotics_pressure/temperature')
-        self.topic_depth = rospy.get_param('~ros/topic_depth', '/bluerobotics_pressure/depth')
-        self.frame_id = rospy.get_param('~ros/frame_id', '/pressure')
+        self.frame_id = rospy.get_param('~frame_id', '/pressure')
 
         # sensor configureation
         self.sensor_model = int(rospy.get_param('~sensor/model', '1'))
@@ -63,15 +60,15 @@ class BlueRoboticsPressure():
 
     def setup_ros(self):
         # presure pub
-        self.pressure_pub = rospy.Publisher(self.topic_pressure, Float64Stamped, queue_size=10)
+        self.pressure_pub = rospy.Publisher("bar30/pressure", Float64Stamped, queue_size=10)
         self.pressure_msg = Float64Stamped()
 
         # temperature pub
-        self.temperature_pub = rospy.Publisher(self.topic_temperature, Float64Stamped, queue_size=10)
+        self.temperature_pub = rospy.Publisher("bar30/temperature", Float64Stamped, queue_size=10)
         self.temperature_msg = Float64Stamped()
 
         # depth pub
-        self.depth_pub = rospy.Publisher(self.topic_depth, Float64Stamped, queue_size=10)
+        self.depth_pub = rospy.Publisher("bar30/depth", Float64Stamped, queue_size=10)
         self.depth_msg = Float64Stamped()
 
     def setup_sensor(self):
