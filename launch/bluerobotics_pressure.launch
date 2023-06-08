@@ -1,12 +1,15 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="config" default="$(find bluerobotics_pressure)/config/bar30.yaml"/>
+    <arg name="robot_name" default="changeme"/>
+    <arg name="config" default="$(find bluerobotics_pressure)/config/bar30.yaml"/>
 
-  <node name="bluerobotics_pressure_node" pkg="bluerobotics_pressure" type="driver.py" output="screen">
-      <rosparam command="load" file="$(arg config)"/>
+    <node ns="$(arg robot_name)" pkg="bluerobotics_pressure" type="driver.py" 
+          name="bluerobotics_pressure_node" output="screen">
 
-      <!-- <remap from="/a" to="/b"/> -->
-  </node>
+        <rosparam command="load" file="$(arg config)"/>
+
+        <param name="frame_id" value="$(arg robot_name)/pressure"/>
+    </node>
 
 </launch>
