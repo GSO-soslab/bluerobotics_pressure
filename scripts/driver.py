@@ -23,25 +23,26 @@ class BlueRoboticsPressure():
         # Main while loop.
         while not rospy.is_shutdown():
             
-            # get header
-            header = Header()
-            header.stamp = rospy.Time.now()
-            header.frame_id = self.frame_id
+            if self.sensor.read():
+                # get header
+                header = Header()
+                header.stamp = rospy.Time.now()
+                header.frame_id = self.frame_id
 
-            # get pressure
-            self.pressure_msg.header = header
-            self.pressure_msg.data = self.sensor.pressure(ms5837.UNITS_psi)
-            self.pressure_pub.publish(self.pressure_msg)
+                # get pressure
+                self.pressure_msg.header = header
+                self.pressure_msg.data = self.sensor.pressure(ms5837.UNITS_psi)
+                self.pressure_pub.publish(self.pressure_msg)
 
-            # get temperature
-            self.temperature_msg.header = header
-            self.temperature_msg.data = self.sensor.temperature(ms5837.UNITS_Centigrade)
-            self.temperature_pub.publish(self.temperature_msg)
+                # get temperature
+                self.temperature_msg.header = header
+                self.temperature_msg.data = self.sensor.temperature(ms5837.UNITS_Centigrade)
+                self.temperature_pub.publish(self.temperature_msg)
 
-            # get depth
-            self.depth_msg.header = header
-            self.depth_msg.data = self.sensor.depth()
-            self.depth_pub.publish(self.depth_msg)
+                # get depth
+                self.depth_msg.header = header
+                self.depth_msg.data = self.sensor.depth()
+                self.depth_pub.publish(self.depth_msg)
 
             # Sleep for a while before publishing new messages. Division is so rate != period.
             rospy.sleep(1.0/self.rate)
