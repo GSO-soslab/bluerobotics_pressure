@@ -1,6 +1,9 @@
 # bluerobotics_pressure
 This is ROS1 python driver for bluerobotics pressure sensor, it use [ms5837-python](https://github.com/bluerobotics/ms5837-python) for data acquisition.
 
+### Install denpendency
+- install smbus2: `pip3 install smbus2`
+
 ### Tested sensors:
 - [Bar30](https://bluerobotics.com/store/sensors-sonars-cameras/sensors/bar30-sensor-r1/)
 
