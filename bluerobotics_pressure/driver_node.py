@@ -58,16 +58,17 @@ class BlueRoboticsPressure(Node):
         self.depth_msg = Float64Stamped()        
 
         # timer callback
-        rate = self.get_parameter('system.rate')
-        timer_period = 1.0 / rate.value
+        rate = self.get_parameter('system.rate').value
+        timer_period = 1.0 / rate
         self.timer = self.create_timer(timer_period, self.timer_callback)        
 
     def setup_sensor(self):
 
         # get parameters
-        sensor_model = self.get_parameter('sensor.model')
-        sensor_bus = self.get_parameter('sensor.bus')
-        sensor_fluid_density = self.get_parameter('sensor.fluid_density')
+        sensor_model = self.get_parameter('sensor.model').value
+        sensor_bus = self.get_parameter('sensor.bus').value
+        print(sensor_bus, flush=True)
+        sensor_fluid_density = self.get_parameter('sensor.fluid_density').value
         
         # start the sensor
         self.sensor = ms5837.MS5837(model=sensor_model, bus=sensor_bus)
@@ -91,7 +92,7 @@ class BlueRoboticsPressure(Node):
 
     def timer_callback(self):
         # get parameters
-        frame_id = self.get_parameter('ros.frame_id')
+        frame_id = self.get_parameter('ros.frame_id').value
 
         # get header
         header = Header()
@@ -114,7 +115,7 @@ class BlueRoboticsPressure(Node):
         self.depth_pub.publish(self.depth_msg)
 
         # DEBUG:
-        self.get_logger().info('The Pressure is "%f" Pa' % self.pressure_msg.fluid_pressure)
+        # self.get_logger().info('The Pressure is "%f" Pa' % self.pressure_msg.fluid_pressure)
 
 def main(args=None):
     rclpy.init(args=args)
