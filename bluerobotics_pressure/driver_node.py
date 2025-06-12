@@ -4,6 +4,7 @@ from rcl_interfaces.msg import ParameterDescriptor
 from std_msgs.msg import Header
 from sensor_msgs.msg import FluidPressure
 from sensor_msgs.msg import Temperature
+from nav_msgs.msg import Odometry
 from mvp_msgs.msg import Float64Stamped
 
 from .ms5837 import ms5837 
@@ -27,7 +28,7 @@ class BlueRoboticsPressure(Node):
 
         # ros related
         frame_id_descriptor = ParameterDescriptor(description='The frame_id assign in the message!')
-        self.declare_parameter('ros.frame_id', '/pressure', frame_id_descriptor)
+        self.declare_parameter('ros.frame_id', 'pressure', frame_id_descriptor)
 
         # sensor related
         model_descriptor = ParameterDescriptor(description='The sensor model !')
@@ -38,6 +39,15 @@ class BlueRoboticsPressure(Node):
 
         fluid_density_descriptor = ParameterDescriptor(description='The fluid density used in Pressure sensor!')
         self.declare_parameter('sensor.fluid_density', 1000.0, fluid_density_descriptor)
+
+        parent_frame_descriptor = ParameterDescriptor(description='Parent frame')
+        self.declare_parameter('sensor.parent_frame', 'parent_frame', parent_frame_descriptor)
+
+        child_frame_descriptor = ParameterDescriptor(description='Child frame')
+        self.declare_parameter('sensor.child_frame', 'child_frame', child_frame_descriptor)
+
+        z_covariance_descriptor = ParameterDescriptor(description='Covariance Matrix')
+        self.declare_parameter('sensor.z_covariance', 0.1, z_covariance_descriptor)
 
         # system related
         rate_descriptor = ParameterDescriptor(description='The system rate to publish the messages!')
@@ -56,6 +66,9 @@ class BlueRoboticsPressure(Node):
         # TODO: change this to standard ros message, i.e., geometry_msgs/msg/Vector3Stamped
         self.depth_pub = self.create_publisher(Float64Stamped, 'depth', 10)
         self.depth_msg = Float64Stamped()        
+
+        self.depth_odometry_pub = self.create_publisher(Odometry, 'depth/odometry', 10)
+        self.depth_odometry_msg = Odometry()
 
         # timer callback
         rate = self.get_parameter('system.rate').value
@@ -91,31 +104,44 @@ class BlueRoboticsPressure(Node):
         sleep(1)
 
     def timer_callback(self):
-        # get parameters
-        frame_id = self.get_parameter('ros.frame_id').value
+        if self.sensor.read():
+            # get parameters
+            frame_id = str(self.get_parameter('ros.frame_id').value)
 
-        # get header
-        header = Header()
-        header.stamp = self.get_clock().now().to_msg()
-        header.frame_id = frame_id
+            # get header
+            header = Header()
+            header.stamp = self.get_clock().now().to_msg()
+            header.frame_id = frame_id
 
-        # get absolute pressure
-        self.pressure_msg.header = header
-        self.pressure_msg.fluid_pressure = self.sensor.pressure(ms5837.UNITS_psi)
-        self.pressure_pub.publish(self.pressure_msg)
+            # get absolute pressure
+            self.pressure_msg.header = header
+            self.pressure_msg.fluid_pressure = self.sensor.pressure(ms5837.UNITS_psi)
+            self.pressure_pub.publish(self.pressure_msg)
 
-        # get temperature in Degrees Celsius
-        self.temperature_msg.header = header
-        self.temperature_msg.temperature = self.sensor.temperature(ms5837.UNITS_Centigrade)
-        self.temperature_pub.publish(self.temperature_msg)
+            # get temperature in Degrees Celsius
+            self.temperature_msg.header = header
+            self.temperature_msg.temperature = self.sensor.temperature(ms5837.UNITS_Centigrade)
+            self.temperature_pub.publish(self.temperature_msg)
 
-        # get depth
-        self.depth_msg.header = header
-        self.depth_msg.data = self.sensor.depth()
-        self.depth_pub.publish(self.depth_msg)
+            # get depth
+            self.depth_msg.header = header
+            self.depth_msg.data = self.sensor.depth()
+            self.depth_pub.publish(self.depth_msg)
 
-        # DEBUG:
-        # self.get_logger().info('The Pressure is "%f" Pa' % self.pressure_msg.fluid_pressure)
+            # get depth odometry
+            header.frame_id = str(self.get_parameter('sensor.parent_frame').value)
+            self.depth_odometry_msg.header = header
+            self.depth_odometry_msg.child_frame_id = str(self.get_parameter('sensor.child_frame').value)
+            self.depth_odometry_msg.pose.pose.position.x = 0.0
+            self.depth_odometry_msg.pose.pose.position.y = 0.0
+            self.depth_odometry_msg.pose.pose.position.z = -self.sensor.depth()
+
+            self.depth_odometry_msg.pose.covariance[14] = self.get_parameter('sensor.z_covariance').value
+
+            self.depth_odometry_pub.publish(self.depth_odometry_msg)
+
+            # DEBUG:
+            # self.get_logger().info('The Pressure is "%f" Pa' % self.pressure_msg.fluid_pressure)
 
 def main(args=None):
     rclpy.init(args=args)
